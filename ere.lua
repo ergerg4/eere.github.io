@@ -44,9 +44,9 @@ Tabs.Final:Divider()
 Tabs.Final:Section({ Title = "BE CARFUL USING THIS\n COULD RISK IN BAN" })
 
 
-Tabs.Final:Button({
-    Title = "Fling All Players",
-    Desc = "Beta: it's kinda broken but works sometimes",
+Combat:Button({
+    Title = "Kill All",
+    Desc = "Fling all players in the server",
     Callback = function()
         local Player = Players.LocalPlayer
         local Character = Player.Character
