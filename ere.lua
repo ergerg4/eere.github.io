@@ -44,7 +44,7 @@ Tabs.Final:Divider()
 Tabs.Final:Section({ Title = "BE CARFUL USING THIS\n COULD RISK IN BAN" })
 
 
-Combat:Button({
+Tabs.Final:Button({
     Title = "Kill All",
     Desc = "Fling all players in the server",
     Callback = function()
