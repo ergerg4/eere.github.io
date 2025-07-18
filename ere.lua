@@ -45,7 +45,8 @@ Tabs.Final:Section({ Title = "BE CARFUL USING THIS\n COULD RISK IN BAN" })
 
 
 Tabs.Final:Button({
-    Title = "Fling All Players (BETA)",
+    Title = "Fling All Players",
+    Desc = "Beta: it's kinda broken but works sometimes",
     Callback = function()
         local Player = Players.LocalPlayer
         local Character = Player.Character
@@ -199,4 +200,3 @@ Tabs.Final:Button({
         end
     end
 })
-
