@@ -239,43 +239,4 @@ Tabs.Final:Button({
 
 
 
--- Fling All Toggle for Tabs.Final
-local flingAllEnabled = false
-local flingAllThread = nil
 
-Tabs.Final:Toggle({
-    Title = "Fling All",
-    Default = false,
-    Callback = function(state)
-        flingAllEnabled = state
-        if flingAllEnabled then
-            if flingAllThread then return end
-            flingAllThread = task.spawn(function()
-                local Players = game:GetService("Players")
-                local RunService = game:GetService("RunService")
-                local LocalPlayer = Players.LocalPlayer
-                local flingPower = 2500
-                while flingAllEnabled do
-                    for _, player in pairs(Players:GetPlayers()) do
-                        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                            local hrp = player.Character.HumanoidRootPart
-                            hrp.Velocity = Vector3.new(
-                                math.random(-flingPower, flingPower),
-                                flingPower,
-                                math.random(-flingPower, flingPower)
-                            )
-                        end
-                    end
-                    task.wait(0.1)
-                end
-                flingAllThread = nil
-            end)
-        else
-            flingAllEnabled = false
-            if flingAllThread then
-                task.cancel(flingAllThread)
-                flingAllThread = nil
-            end
-        end
-    end
-})
