@@ -40,7 +40,8 @@ local Tabs = {
 
 
 Tabs.Final:Button({
-    Title = "Fling All Players",
+    Title = "Kill All",
+    Desc = "Fling all players in the server",
     Callback = function()
         local Player = Players.LocalPlayer
         local Character = Player.Character
