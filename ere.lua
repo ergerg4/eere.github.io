@@ -38,6 +38,11 @@ local Tabs = {
 }
 
 
+Tabs.Final:Divider()
+
+
+Tabs.Final:Section({ Title = "BE CARFUL USING THIS\n COULD RISK IN BAN" })
+
 
 Tabs.Final:Button({
     Title = "Fling All Players (BETA)",
@@ -194,6 +199,4 @@ Tabs.Final:Button({
         end
     end
 })
-
-
 
