@@ -37,53 +37,36 @@ local Tabs = {
     Final = Window:Tab({ Title = "Final", Icon = "swords" }),
 }
 
-local antiFlingEnabled = false
-local antiFlingConnection = nil
 
-local function enableAntiFling()
-    antiFlingConnection = RunService.Heartbeat:Connect(function()
-        if not antiFlingEnabled then
-            if antiFlingConnection then
-                antiFlingConnection:Disconnect()
-                antiFlingConnection = nil
-            end
-            return
-        end
-        local character = LocalPlayer.Character
-        if character then
-            local hrp = character:FindFirstChild("HumanoidRootPart")
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if hrp and humanoid then
-                local currentVel = hrp.Velocity
-                hrp.Velocity = Vector3.new(currentVel.X * 0.5, currentVel.Y, currentVel.Z * 0.5)
-                hrp.RotVelocity = Vector3.new(0, 0, 0)
-                if currentVel.Magnitude > 100 and humanoid:GetState() ~= Enum.HumanoidStateType.Jumping then
-                    hrp.Velocity = Vector3.new(currentVel.X * 0.3, currentVel.Y, currentVel.Z * 0.3)
-                end
-            end
-        end
-        task.wait(0.1)
-    end)
-end
 
-local function disableAntiFling()
-    if antiFlingConnection then
-        antiFlingConnection:Disconnect()
-        antiFlingConnection = nil
-    end
-end
+local antiflingEnabled = false
+local antiflingThread = nil
 
 Tabs.Random:Toggle({
-    Title = "Antifling",
+    Title = "AntiFling",
     Value = false,
     Callback = function(state)
-        antiFlingEnabled = state
+        antiflingEnabled = state
         if state then
-            if not antiFlingConnection or not antiFlingConnection.Connected then
-                enableAntiFling()
+            if not antiflingThread or coroutine.status(antiflingThread) == "dead" then
+                antiflingThread = coroutine.create(function()
+                    while antiflingEnabled do
+                        for _, player in pairs(Players:GetPlayers()) do
+                            if player ~= LocalPlayer and player.Character then
+                                for _, v in pairs(player.Character:GetDescendants()) do
+                                    if v:IsA("BasePart") then
+                                        v.CanCollide = false
+                                    end
+                                end
+                            end
+                        end
+                        task.wait(0.2) -- Only every 0.2 seconds
+                    end
+                end)
+                coroutine.resume(antiflingThread)
             end
         else
-            disableAntiFling()
+            antiflingEnabled = false
         end
     end
 })
