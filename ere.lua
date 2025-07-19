@@ -38,8 +38,6 @@ local Tabs = {
 }
 
 
--- ESP Keys toggle for Hide tab, with 0.4s delay for refresh to reduce lag
-
 local workspace = game:GetService("Workspace")
 local keyHighlights = {}
 local keyESPEnabled = false
@@ -93,14 +91,11 @@ local function SetupKeyESP()
         end
     end
     table.clear(keyESPConnections)
-
     if refreshConnection then
         refreshConnection:Disconnect()
         refreshConnection = nil
     end
-
     if not keyESPEnabled then return end
-
     local lastScan = 0
     refreshConnection = game:GetService("RunService").Heartbeat:Connect(function()
         if not keyESPEnabled then
@@ -121,7 +116,6 @@ local function SetupKeyESP()
             end
         end
     end)
-
     if keyESPConnections.descendantAdded then
         keyESPConnections.descendantAdded:Disconnect()
         keyESPConnections.descendantAdded = nil
@@ -135,7 +129,6 @@ end
 
 Tabs.Hide:Toggle({
     Title = "ESP Keys",
-    Desc = "Highlights all keys in the workspace",
     Value = false,
     Callback = function(state)
         keyESPEnabled = state
