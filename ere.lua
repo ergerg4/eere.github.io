@@ -40,6 +40,7 @@ local Tabs = {
 
 local workspace = game:GetService("Workspace")
 local keyHighlights = {}
+local keyLabels = {}
 local keyESPEnabled = false
 local keyESPConnections = {}
 
@@ -52,6 +53,10 @@ local function KeyESP(keyModel)
         keyHighlights[keyModel]:Destroy()
         keyHighlights[keyModel] = nil
     end
+    if keyLabels[keyModel] then
+        keyLabels[keyModel]:Destroy()
+        keyLabels[keyModel] = nil
+    end
     local highlight = Instance.new("Highlight")
     highlight.Name = "KeyESP"
     highlight.Adornee = keyModel
@@ -61,16 +66,36 @@ local function KeyESP(keyModel)
     highlight.OutlineTransparency = 0
     highlight.Parent = keyModel
     keyHighlights[keyModel] = highlight
+    local billboard = Instance.new("BillboardGui")
+    billboard.Adornee = keyModel.PrimaryPart
+    billboard.Size = UDim2.new(0, 60, 0, 20)
+    billboard.StudsOffset = Vector3.new(0, 2, 0)
+    billboard.AlwaysOnTop = true
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = "KEY"
+    label.TextColor3 = Color3.fromRGB(255, 255, 0)
+    label.TextStrokeTransparency = 0.5
+    label.Font = Enum.Font.GothamSemibold
+    label.TextSize = 16
+    label.Parent = billboard
+    billboard.Parent = keyModel
+    keyLabels[keyModel] = billboard
     local connection
     connection = keyModel.AncestryChanged:Connect(function(_, parent)
         if not parent or not keyModel:IsDescendantOf(game) then
             if highlight and highlight.Parent then
                 highlight:Destroy()
             end
+            if billboard and billboard.Parent then
+                billboard:Destroy()
+            end
             if connection then
                 connection:Disconnect()
             end
             keyHighlights[keyModel] = nil
+            keyLabels[keyModel] = nil
         end
     end)
     keyESPConnections[keyModel] = connection
@@ -84,7 +109,13 @@ local function SetupKeyESP()
             highlight:Destroy()
         end
     end
+    for key, billboard in pairs(keyLabels) do
+        if billboard and billboard.Parent then
+            billboard:Destroy()
+        end
+    end
     table.clear(keyHighlights)
+    table.clear(keyLabels)
     for key, conn in pairs(keyESPConnections) do
         if conn then
             conn:Disconnect()
