@@ -30,6 +30,7 @@ local Tabs = {
     Player = Window:Tab({ Title = "Dalgona", Icon = "cookie" }),
     Tug = Window:Tab({ Title = "Tug Of War", Icon = "sword" }),
     Hide = Window:Tab({ Title = "Hide And Seek", Icon = "eye-off" }),
+    Jump = Window:Tab({ Title = "Jump Rope", Icon = "person-standing" }),
     Glass = Window:Tab({ Title = "Glass Bridge", Icon = "grid-2x2" }),
     Mingle = Window:Tab({ Title = "Mingle", Icon = "tent" }),
     Random = Window:Tab({ Title = "Random Features", Icon = "dices" }),
@@ -39,34 +40,11 @@ local Tabs = {
 
 
 
-local antiflingEnabled = false
-local antiflingThread = nil
-
-Tabs.Random:Toggle({
-    Title = "AntiFling",
-    Value = false,
-    Callback = function(state)
-        antiflingEnabled = state
-        if state then
-            if not antiflingThread or coroutine.status(antiflingThread) == "dead" then
-                antiflingThread = coroutine.create(function()
-                    while antiflingEnabled do
-                        for _, player in pairs(Players:GetPlayers()) do
-                            if player ~= LocalPlayer and player.Character then
-                                for _, v in pairs(player.Character:GetDescendants()) do
-                                    if v:IsA("BasePart") then
-                                        v.CanCollide = false
-                                    end
-                                end
-                            end
-                        end
-                        task.wait(0.2) -- Only every 0.2 seconds
-                    end
-                end)
-                coroutine.resume(antiflingThread)
-            end
-        else
-            antiflingEnabled = false
-        end
+Tabs.Jump:Button({
+    Title = "TP to End (Jump Rope)",
+    Callback = function()
+        local player = game:GetService("Players").LocalPlayer
+        if not player.Character then return end
+        player.Character:PivotTo(CFrame.new(Vector3.new(720.83, 202.7, 921.26)))
     end
 })
