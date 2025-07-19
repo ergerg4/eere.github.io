@@ -38,3 +38,111 @@ local Tabs = {
 }
 
 
+-- ESP Keys toggle for Hide tab, with 0.4s delay for refresh to reduce lag
+
+local workspace = game:GetService("Workspace")
+local keyHighlights = {}
+local keyESPEnabled = false
+local keyESPConnections = {}
+
+local function KeyESP(keyModel)
+    if not keyESPEnabled then return end
+    if not keyModel or not keyModel:IsA("Model") or not keyModel.PrimaryPart then
+        return
+    end
+    if keyHighlights[keyModel] then
+        keyHighlights[keyModel]:Destroy()
+        keyHighlights[keyModel] = nil
+    end
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "KeyESP"
+    highlight.Adornee = keyModel
+    highlight.FillColor = Color3.fromRGB(255, 255, 0)
+    highlight.OutlineColor = Color3.fromRGB(255, 215, 0)
+    highlight.FillTransparency = 0.3
+    highlight.OutlineTransparency = 0
+    highlight.Parent = keyModel
+    keyHighlights[keyModel] = highlight
+    local connection
+    connection = keyModel.AncestryChanged:Connect(function(_, parent)
+        if not parent or not keyModel:IsDescendantOf(game) then
+            if highlight and highlight.Parent then
+                highlight:Destroy()
+            end
+            if connection then
+                connection:Disconnect()
+            end
+            keyHighlights[keyModel] = nil
+        end
+    end)
+    keyESPConnections[keyModel] = connection
+end
+
+local refreshConnection = nil
+
+local function SetupKeyESP()
+    for key, highlight in pairs(keyHighlights) do
+        if highlight and highlight.Parent then
+            highlight:Destroy()
+        end
+    end
+    table.clear(keyHighlights)
+    for key, conn in pairs(keyESPConnections) do
+        if conn then
+            conn:Disconnect()
+        end
+    end
+    table.clear(keyESPConnections)
+
+    if refreshConnection then
+        refreshConnection:Disconnect()
+        refreshConnection = nil
+    end
+
+    if not keyESPEnabled then return end
+
+    local lastScan = 0
+    refreshConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if not keyESPEnabled then
+            if refreshConnection then
+                refreshConnection:Disconnect()
+                refreshConnection = nil
+            end
+            return
+        end
+        if tick() - lastScan >= 0.4 then
+            lastScan = tick()
+            for _, obj in ipairs(workspace:GetDescendants()) do
+                if obj.Name:lower():find("key") and obj:IsA("Model") and obj.PrimaryPart then
+                    if not keyHighlights[obj] then
+                        KeyESP(obj)
+                    end
+                end
+            end
+        end
+    end)
+
+    if keyESPConnections.descendantAdded then
+        keyESPConnections.descendantAdded:Disconnect()
+        keyESPConnections.descendantAdded = nil
+    end
+    keyESPConnections.descendantAdded = workspace.DescendantAdded:Connect(function(obj)
+        if obj.Name:lower():find("key") and obj:IsA("Model") and obj.PrimaryPart then
+            KeyESP(obj)
+        end
+    end)
+end
+
+Tabs.Hide:Toggle({
+    Title = "ESP Keys",
+    Desc = "Highlights all keys in the workspace",
+    Value = false,
+    Callback = function(state)
+        keyESPEnabled = state
+        SetupKeyESP()
+        if not state and refreshConnection then
+            refreshConnection:Disconnect()
+            refreshConnection = nil
+        end
+    end
+})
